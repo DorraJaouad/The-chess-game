@@ -1,0 +1,232 @@
+import numpy as np
+
+def check_name(name):
+    list = ["knight","pawn","bishop","rook"]
+    valid = False
+    if name == "king" or name == "queen":
+        valid = True
+    else:
+        for i in list :
+            if i in name:
+              valid = True
+    return valid
+
+
+def checkform(pos):
+    a = int(pos[1]) in range(1, 9)
+    b = int(pos[3]) in range(1, 9)
+    ch = "(" + pos[1] + "," + pos[3] + ")"
+    if a and b and ch == pos:
+        return True
+    else:
+        return False
+
+
+def data(team, board):
+    n = int(input("write how many elements (maximum 8):"))
+    for i in range(1, n + 1):
+        while True:
+            print("type the name of element ", i, " (eg: king,queen, knightA ,knightB..) : ")
+            name = input()
+            if check_name(name):
+               break
+            else:
+               print("the element name doesn't exist please retype it")
+        while True:
+            pos = input("what is its position ( insert it like ""(x,y)"" ):")
+            a = int(pos[1]) - 1
+            b = int(pos[3]) - 1
+            if board[a, b] != 1 and checkform(pos):# '(x,y)'
+                break
+            else:
+                print("the position is already taken or a wrong format")
+        team[name] = pos
+        board[a, b] = 1
+
+
+def way(x1, y1, x, y, board):
+    c = False
+    if x1 == x:
+        a = 0
+    if y1 == y:
+        b = 0
+
+    if x1 - x > 0:
+        a = -1
+    elif x1 - x < 0:
+        a = 1
+    if y1 - y > 0:
+        b = -1
+    elif y1 - y < 0:
+        b = 1
+    o = x1 + a
+    i = y1 + b
+    while o != x and i != y:
+        king_position=team1["king"]
+        if board[o - 1, i - 1] == 1 and o!=int(king_position[1] )and i!=int(king_position[3]):
+            c = True
+        else:
+            o = o + a
+            i = i + b
+    return c
+
+
+def check(x, y, board, team1, team2):
+    bo = True
+    ch = "(" + str(x) + "," + str(y) + ")"
+    if ch in team1.values():  # the position is taken by one of the same team
+        bo = False
+    for i, v in team2.items():
+        x1 = int(v[1])
+        y1 = int(v[3])
+        if i == "queen":
+            if (x1 - x == y1 - y) or (x1 == x) or (y1 == y):
+                if not (way(x1, y1, x, y, board)):
+                    # False means there is nothing on its way to the king (x,y)
+                    bo = False
+        elif "bishop" in i:
+            if abs(x1 - x) == abs(y1 - y):
+                if not (way(x1, y1, x, y, board)):  # False means there is nothing on its way
+                    bo = False
+        elif "knight" in i:
+            a = x1 + 2
+            b = y1 + 1
+            lst = []
+            l1 = "(" + str(a) + "," + str(b) + ")"
+            lst.append(l1)
+            b = y1 - 1
+            l2 = "(" + str(a) + "," + str(b) + ")"
+            lst.append(l2)
+            a = x1 - 2
+            l3 = "(" + str(a) + "," + str(b) + ")"
+            lst.append(l3)
+            b = y1 + 1
+            l4 = "(" + str(a) + "," + str(b) + ")"
+            lst.append(l4)
+            a = x1 + 1
+            b = y1 + 2
+            l5 = "(" + str(a) + "," + str(b) + ")"
+            lst.append(l5)
+            a = x1 - 1
+            l6 = "(" + str(a) + "," + str(b) + ")"
+            lst.append(l6)
+            b = y1 - 2
+            l7 = "(" + str(a) + "," + str(b) + ")"
+            lst.append(l7)
+            a = x1 + 1
+            l8 = "(" + str(a) + "," + str(b) + ")"
+            lst.append(l8)
+            if team1["king"] in lst:
+                bo = False
+        elif (i == "rookA") or (i == 'rookB'):
+            if x1 == x or y1 == 1:
+                if not (way(x1, y1, x, y, board)):
+                    bo = False
+        elif "pawn" in i:
+            if (x == x1 + 1 or x == x1 - 1) and (y == y1 + 1):
+                bo = False
+    return bo
+
+
+def checkmove(x, y, board, team1, team2, m, n):  # to check the border lines of the board
+    if m == 0:
+        y1 = y + n
+        for i in range(-1, 2):  #
+            x1 = x + i
+            if check(x1, y1, board, team1, team2):
+                ch = "(" + str(x1) + "," + str(y1) + ")"
+                print("the king can move to ", ch)
+        if check(x + 1, y, board, team1, team2):
+            ch = "(" + str(x + 1) + "," + str(y) + ")"
+            print("the king can move to ", ch)
+        if check(x - 1, y, board, team1, team2):
+            ch = "(" + str(x - 1) + "," + str(y) + ")"
+            print("the king can move to ", ch)
+    if n == 0:
+        x1 = x + m
+        for i in range(-1, 2):
+            y1 = y + i
+            if check(x1, y1, board, team1, team2):
+                ch = "(" + str(x1) + "," + str(y1) + ")"
+                print("the king can move to ", ch)
+        if check(x, y + 1, board, team1, team2):
+            ch = "(" + str(x) + "," + str(y + 1) + ")"
+            print("the king can move to ", ch)
+        if check(x, y - 1, board, team1, team2):
+            ch = "(" + str(x) + "," + str(y - 1) + ")"
+            print("the king can move to ", ch)
+
+
+def usualcheck(x, y, board, team1, team2):
+    checkmove(x, y, board, team1, team2, 0, 1)
+    y1 = y - 1
+    for i in range(-1, 2):
+        x1 = x + i
+        #print("the loop is in ", x1, " ", y1)  # to know here the program stops running
+        #print(check(x1, y1, board, team1, team2))  # it does not print it
+        if check(x1, y1, board, team1, team2):
+            ch = "(" + str(x1) + "," + str(y1) + ")"
+            print("the king can move to ", ch)
+
+
+def kingmove(team1, team2):
+    kp = team1["king"]
+    x = int(kp[1])
+    y = int(kp[3])
+    if x == 1 and y == 1:
+        if check(1, 1, board, team1, team2):
+            print(" the king can move to (1,2)")
+        elif check(2, 2, board, team1, team2):
+            print(" the king can move to (2,2)")
+        elif check(2, 1, board, team1, team2):
+            print(" the king can move to (2,2)")
+    elif x == 8 and y == 1:
+        if check(8, 2, board, team1, team2):
+            print(" the king can move to (8,2)")
+        elif check(7, 2, board, team1, team2):
+            print(" the king can move to (7,2)")
+        elif check(7, 1, board, team1, team2):
+            print(" the king can move to (7,2)")
+    elif x == 8 and y == 8:
+        if check(7, 8, board, team1, team2):
+            print(" the king can move to (7,8)")
+        elif check(7, 7, board, team1, team2):
+            print(" the king can move to (7,7)")
+        elif check(8, 7, board, team1, team2):
+            print(" the king can move to (8,7)")
+    elif x == 1 and y == 8:
+        if check(1, 7, board, team1, team2):
+            print(" the king can move to (1,7)")
+        elif check(2, 7, board, team1, team2):
+            print(" the king can move to (2,7)")
+        elif check(2, 8, board, team1, team2):
+            print(" the king can move to (2,8)")
+    elif x in range(2, 8) and (y == 1 or y == 8):
+
+        if y== 1:
+            checkmove(x, y, board, team1, team2, 0, 1)  # this for the line of y=1
+        if y==8:
+            checkmove(x, y, board, team1, team2, 0, -1)  # this for the line of y=8
+    elif (x == 1 or x == 8) and y in range(2, 8):
+
+        if x==1:
+            checkmove(x, y, board, team1, team2, 1, 0)  # this for the line of x=1
+        if x==8:
+            checkmove(x, y, board, team1, team2, -1, 0)  # this for the line of x=8
+    else:
+
+        usualcheck(x, y, board, team1, team2)  # for every place on the center of the board
+
+
+# def main:
+board = np.zeros((8, 8), dtype=int)
+team2 = {}
+team1 = {}
+print("we are starting with white team")
+data(team1, board)
+print("We are moving to the black team")
+data(team2, board)
+print("We are now checking the white king move ")
+kingmove(team1, team2)
+print("We are now checking the black king move")
+kingmove(team2, team1)
